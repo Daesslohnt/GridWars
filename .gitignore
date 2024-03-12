@@ -3,3 +3,9 @@
 
 # IntelliJ IDEA-specific ignorances
 .idea/
+
+# Build files
+build/
+
+# Log files
+*.log
