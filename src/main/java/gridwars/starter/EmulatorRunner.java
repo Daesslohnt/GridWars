@@ -10,7 +10,7 @@ public class EmulatorRunner {
 
     public static void main(String[] args) {
         SmartCheckbot blueBot = new SmartCheckbot();
-        Checkbot redBot = new Checkbot();
+        hackgrid redBot = new hackgrid();
 
         Emulator.playMatch(blueBot, redBot);
     }

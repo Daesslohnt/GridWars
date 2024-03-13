@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Simple bot that expands into all directions if there is a cell that does not belong to the bot
  */
-public class SmartCheckbot implements PlayerBot {
+public class hackgrid implements PlayerBot {
 
     public void getNextCommands(UniverseView universeView, List<MovementCommand> commandList) {
         List<Coordinates> myCells = universeView.getMyCells();
@@ -35,16 +35,15 @@ public class SmartCheckbot implements PlayerBot {
     private List<MovementCommand.Direction> getOutside(Coordinates cell, UniverseView universeView) {
         List<Integer> distances = new ArrayList<>();
         List<MovementCommand.Direction> result = new ArrayList<>();
+        List<MovementCommand.Direction> enemy = new ArrayList<>();
         int minDistance = 10000;
         for (MovementCommand.Direction direction : MovementCommand.Direction.values()) {
             int distance = 1;
             while (universeView.belongsToMe(cell.getRelative(distance, direction)) && distance < universeView.getUniverseSize()) {
                 distance++;
-                /*if (!universeView.isEmpty(cell.getRelative(distance, direction)) && !universeView.belongsToMe(cell.getRelative(distance, direction))) {
-                    List<MovementCommand.Direction> result2 = new ArrayList<>();
-                    result2.add(direction);
-                    return result2;
-                }*/
+                if (!universeView.isEmpty(cell.getRelative(distance, direction)) && !universeView.belongsToMe(cell.getRelative(distance, direction))&&distance<10) {
+                    enemy.add(direction);
+                }
             }
             if (distance < minDistance) {
                 minDistance = distance;
@@ -56,6 +55,7 @@ public class SmartCheckbot implements PlayerBot {
                 result.add(MovementCommand.Direction.values()[x]);
             }
         }
+        result.addAll(enemy);
         return result;
     }
 }
