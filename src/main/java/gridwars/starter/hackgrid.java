@@ -13,21 +13,34 @@ import java.util.List;
  * Simple bot that expands into all directions if there is a cell that does not belong to the bot
  */
 public class hackgrid implements PlayerBot {
+    private  double popsplit;
+
+    public hackgrid(){
+        this.popsplit = 10;
+    }
+
+    public hackgrid(int popsplit){
+        this.popsplit = popsplit;
+    }
 
     public void getNextCommands(UniverseView universeView, List<MovementCommand> commandList) {
         List<Coordinates> myCells = universeView.getMyCells();
+        if (this.popsplit < 60){
+            this.popsplit = this.popsplit + 0.025;
+        }
+        System.out.println(popsplit);
+
 
         for (Coordinates cell : myCells) {
             int currentPopulation = universeView.getPopulation(cell);
 
-            if (currentPopulation > 10) {
+            if (currentPopulation > this.popsplit) {
                 List<MovementCommand.Direction> outside = getOutside(cell, universeView);
                 int split = outside.size() + 1;
                 // Expand
                 for (MovementCommand.Direction direction : outside) {
                     commandList.add(new MovementCommand(cell, direction, currentPopulation / split));
                 }
-                System.out.println(outside);
             }
         }
     }
