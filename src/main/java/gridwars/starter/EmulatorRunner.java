@@ -9,8 +9,8 @@ import cern.ais.gridwars.Emulator;
 public class EmulatorRunner {
 
     public static void main(String[] args) {
-        SmartCheckbot blueBot = new SmartCheckbot();
-        hackgrid redBot = new hackgrid(10);
+        hackgrid blueBot = new hackgrid(8, true);
+        hackgrid redBot = new hackgrid(8, false);
 
         Emulator.playMatch(blueBot, redBot);
     }

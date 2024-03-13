@@ -14,19 +14,22 @@ import java.util.List;
  */
 public class hackgrid implements PlayerBot {
     private  double popsplit;
+    private boolean half;
 
     public hackgrid(){
+        this.half = true;
         this.popsplit = 10;
     }
 
-    public hackgrid(int popsplit){
+    public hackgrid(int popsplit, boolean half){
         this.popsplit = popsplit;
+        this.half = half;
     }
 
     public void getNextCommands(UniverseView universeView, List<MovementCommand> commandList) {
         List<Coordinates> myCells = universeView.getMyCells();
         if (this.popsplit < 60){
-            this.popsplit = this.popsplit + 0.025;
+            this.popsplit = this.popsplit + 0.1;
         }
         System.out.println(popsplit);
 
@@ -36,10 +39,15 @@ public class hackgrid implements PlayerBot {
 
             if (currentPopulation > this.popsplit) {
                 List<MovementCommand.Direction> outside = getOutside(cell, universeView);
-                int split = outside.size() + 1;
+                int split = outside.size();
                 // Expand
                 for (MovementCommand.Direction direction : outside) {
-                    commandList.add(new MovementCommand(cell, direction, currentPopulation / split));
+                    if(half){
+                        commandList.add(new MovementCommand(cell, direction, (currentPopulation-5) / split));
+                    }else{
+                        commandList.add(new MovementCommand(cell, direction, currentPopulation / (split+1)));
+                    }
+
                 }
             }
         }
@@ -54,7 +62,7 @@ public class hackgrid implements PlayerBot {
             int distance = 1;
             while (universeView.belongsToMe(cell.getRelative(distance, direction)) && distance < universeView.getUniverseSize()) {
                 distance++;
-                if (!universeView.isEmpty(cell.getRelative(distance, direction)) && !universeView.belongsToMe(cell.getRelative(distance, direction))&&distance<10) {
+                if (!universeView.isEmpty(cell.getRelative(distance, direction)) && !universeView.belongsToMe(cell.getRelative(distance, direction))&&distance<25) {
                     enemy.add(direction);
                 }
             }
