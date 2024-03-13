@@ -20,7 +20,7 @@ public class hackgrid implements PlayerBot {
         for (Coordinates cell : myCells) {
             int currentPopulation = universeView.getPopulation(cell);
 
-            if (currentPopulation > 30) {
+            if (currentPopulation > 10) {
                 List<MovementCommand.Direction> outside = getOutside(cell, universeView);
                 int split = outside.size() + 1;
                 // Expand
