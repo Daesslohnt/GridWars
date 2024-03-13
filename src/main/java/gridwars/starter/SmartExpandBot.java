@@ -6,14 +6,11 @@ import cern.ais.gridwars.api.bot.PlayerBot;
 import cern.ais.gridwars.api.command.MovementCommand;
 
 import java.util.List;
-import java.util.Random;
 
 /**
  * Smart bot that expands, consolidates, and defends based on strategic considerations.
  */
 public class SmartExpandBot implements PlayerBot {
-
-    private static final Random random = new Random();
 
     @Override
     public void getNextCommands(UniverseView universeView, List<MovementCommand> commandList) {
