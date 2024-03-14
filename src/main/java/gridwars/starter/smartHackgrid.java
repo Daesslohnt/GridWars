@@ -13,72 +13,65 @@ import java.util.List;
  * Simple bot that expands into all directions if there is a cell that does not belong to the bot
  */
 public class smartHackgrid implements PlayerBot {
-	private  double popsplit;
+    private double popsplit;
 
-	public smartHackgrid(){
-		this.popsplit = 10;
-	}
+    public smartHackgrid() {
+        this.popsplit = 10;
+    }
 
-	public smartHackgrid(int popsplit){
-		this.popsplit = popsplit;
-	}
+    public smartHackgrid(int popsplit) {
+        this.popsplit = popsplit;
+    }
 
-	public void getNextCommands(UniverseView universeView, List<MovementCommand> commandList) {
-		List<Coordinates> myCells = universeView.getMyCells();
-		if (this.popsplit < 60){
-			this.popsplit = this.popsplit + 0.025;
-		}
-		System.out.println(popsplit);
+    public void getNextCommands(UniverseView universeView, List<MovementCommand> commandList) {
+        List<Coordinates> myCells = universeView.getMyCells();
+        if (this.popsplit < 60) {
+            this.popsplit = this.popsplit + 0.1;
+        }
 
 
-		for (Coordinates cell : myCells) {
-			int currentPopulation = universeView.getPopulation(cell);
-
-			if (currentPopulation > this.popsplit) {
-				List<MovementCommand.Direction> outside = getOutside(cell, universeView);
-				int split = outside.size() + 1;
-				// Expand
-				for (MovementCommand.Direction direction : outside) {
-					commandList.add(new MovementCommand(cell, direction, currentPopulation / split));
-				}
-			}
-		}
-	}
-
-	private List<MovementCommand.Direction> getOutside(Coordinates cell, UniverseView universeView) {
-		List<Integer> distances = new ArrayList<>();
-        List<Integer> enemyDists = new ArrayList<>();
-		List<MovementCommand.Direction> result = new ArrayList<>();
-		List<MovementCommand.Direction> enemy = new ArrayList<>();
-		int minDistance = 10000;
-        int minEnemyDistance = 10000;
-		for (MovementCommand.Direction direction : MovementCommand.Direction.values()) {
-			int distance = 1;
-            int enemyDistance = 1;
-			while (universeView.belongsToMe(cell.getRelative(distance, direction)) && distance < universeView.getUniverseSize()) {
-				distance++;
-			}
-            while (!universeView.isEmpty(cell.getRelative(distance, direction)) && !universeView.belongsToMe(cell.getRelative(distance, direction))&&enemyDistance<10) {
-                enemyDistance++;
+        for (Coordinates cell : myCells) {
+            int currentPopulation = universeView.getPopulation(cell);
+            if (currentPopulation > popsplit) {
+                List<MovementCommand.Direction> outside = getOutside(cell, universeView);
+                int split = outside.size();
+                // Expand
+                int popToMove = 0;
+                for (MovementCommand.Direction direction : outside) {
+                    commandList.add(new MovementCommand(cell, direction, Math.max(0, (currentPopulation - 5) / split)));
+                    popToMove += (currentPopulation - 5) / split;
+                }
+                if (popToMove > currentPopulation) {
+                    universeView.log("Tried Moving more pop than available");
+                }
             }
-			if (distance < minDistance) {
-				minDistance = distance;
-			}
-            if (enemyDistance < minEnemyDistance) {
-                minEnemyDistance = minDistance;
+        }
+    }
+
+    private List<MovementCommand.Direction> getOutside(Coordinates cell, UniverseView universeView) {
+        List<Integer> distances = new ArrayList<>();
+        List<MovementCommand.Direction> result = new ArrayList<>();
+        List<MovementCommand.Direction> enemy = new ArrayList<>();
+        int minDistance = 10000;
+        for (MovementCommand.Direction direction : MovementCommand.Direction.values()) {
+            int distance = 1;
+            while (universeView.belongsToMe(cell.getRelative(distance, direction)) && distance < universeView.getUniverseSize()) {
+                distance++;
+                if (!universeView.isEmpty(cell.getRelative(distance, direction)) && !universeView.belongsToMe(cell.getRelative(distance, direction)) && distance < 25) {
+                    enemy.add(direction);
+                }
             }
-			distances.add(distance);
-            enemyDists.add(enemyDistance);
-		}
-		for (int x = 0; x < 4; x++) {
-			if (distances.get(x) == minDistance) {
-				result.add(MovementCommand.Direction.values()[x]);
-			}
-            if (enemyDists.get(0) < 10 && enemyDists.get(0) == minEnemyDistance){
-                enemy.add(MovementCommand.Direction.values()[x]);
+            if (distance < minDistance) {
+                minDistance = distance;
             }
-		}
-		result.addAll(enemy);
-		return result;
-	}
+            distances.add(distance);
+        }
+        for (int x = 0; x < 4; x++) {
+            if (distances.get(x) == minDistance) {
+                result.add(MovementCommand.Direction.values()[x]);
+            }
+        }
+        result.addAll(enemy);
+        return result;
+    }
 }

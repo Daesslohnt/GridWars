@@ -13,45 +13,63 @@ import java.util.List;
  * Simple bot that expands into all directions if there is a cell that does not belong to the bot
  */
 public class hackgrid implements PlayerBot {
-    private  double popsplit;
+    private double popsplit;
     private boolean half;
 
-    public hackgrid(){
+    public hackgrid() {
         this.half = true;
-        this.popsplit = 10;
+        this.popsplit = 8;
     }
 
-    public hackgrid(int popsplit, boolean half){
+    public hackgrid(int popsplit, boolean half) {
         this.popsplit = popsplit;
         this.half = half;
     }
 
     public void getNextCommands(UniverseView universeView, List<MovementCommand> commandList) {
         List<Coordinates> myCells = universeView.getMyCells();
-        if (this.popsplit < 60){
+        if (this.popsplit < 60) {
             this.popsplit = this.popsplit + 0.1;
         }
-        System.out.println(popsplit);
 
 
         for (Coordinates cell : myCells) {
             int currentPopulation = universeView.getPopulation(cell);
-
-            if (currentPopulation > this.popsplit) {
+            if (currentPopulation > popsplit) {
                 List<MovementCommand.Direction> outside = getOutside(cell, universeView);
                 int split = outside.size();
                 // Expand
+                int popToMove = 0;
                 for (MovementCommand.Direction direction : outside) {
-                    if(half){
-                        commandList.add(new MovementCommand(cell, direction, (currentPopulation-5) / split));
-                    }else{
-                        commandList.add(new MovementCommand(cell, direction, currentPopulation / (split+1)));
+                    if ((currentPopulation - 5) / split>0) {
+                        commandList.add(new MovementCommand(cell, direction, Math.max(0, (currentPopulation - 5) / split)));
+                        popToMove += (currentPopulation - 5) / split;
+                    }
+                }
+                if (popToMove > currentPopulation) {
+                    universeView.log("Tried Moving more pop than available");
+                }
+            } else if (currentPopulation > (popsplit / 2)+1) {
+                List<MovementCommand.Direction> outside2 = getOutside(cell, universeView);
+                int split2 = outside2.size();
+                // Expand
+                int popToMove2 = 0;
+                for (MovementCommand.Direction direction : outside2) {
+                    if (direction == MovementCommand.Direction.LEFT || direction == MovementCommand.Direction.RIGHT) {
+                        split2--;
+                        continue;
+                    }
+                    if ((currentPopulation - 5) / split2>0){
+                        commandList.add(new MovementCommand(cell, direction, Math.max(0, (currentPopulation - 5) / split2)));
+                        popToMove2 += (currentPopulation - 5) / split2;
                     }
 
                 }
             }
         }
+
     }
+
 
     private List<MovementCommand.Direction> getOutside(Coordinates cell, UniverseView universeView) {
         List<Integer> distances = new ArrayList<>();
@@ -62,7 +80,7 @@ public class hackgrid implements PlayerBot {
             int distance = 1;
             while (universeView.belongsToMe(cell.getRelative(distance, direction)) && distance < universeView.getUniverseSize()) {
                 distance++;
-                if (!universeView.isEmpty(cell.getRelative(distance, direction)) && !universeView.belongsToMe(cell.getRelative(distance, direction))&&distance<25) {
+                if (!universeView.isEmpty(cell.getRelative(distance, direction)) && !universeView.belongsToMe(cell.getRelative(distance, direction)) && distance < 25) {
                     enemy.add(direction);
                 }
             }
