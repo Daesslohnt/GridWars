@@ -14,16 +14,13 @@ import java.util.List;
  */
 public class hackgrid implements PlayerBot {
     private double popsplit;
-    private boolean half;
 
     public hackgrid() {
-        this.half = true;
         this.popsplit = 8;
     }
 
-    public hackgrid(int popsplit, boolean half) {
+    public hackgrid(int popsplit) {
         this.popsplit = popsplit;
-        this.half = half;
     }
 
     public void getNextCommands(UniverseView universeView, List<MovementCommand> commandList) {
